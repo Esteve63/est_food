@@ -50,6 +50,7 @@ function RootLayoutNav() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="productEdit" options={{ title: 'Product Edit', presentation: 'modal' }} />
+        <Stack.Screen name="barcodeScanner" options={{ title: 'Barcode Scanner', presentation: 'modal' }} />
       </Stack>
     </ThemeProvider>
   );

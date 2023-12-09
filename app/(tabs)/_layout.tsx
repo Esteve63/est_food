@@ -28,7 +28,7 @@ export default function TabLayout() {
           title: 'Inventory',
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
           headerRight: () => (
-            <Link href="/modal" asChild>
+            <Link href="/barcodeScanner" asChild>
               <Pressable>
                 {({ pressed }) => (
                   <FontAwesome
