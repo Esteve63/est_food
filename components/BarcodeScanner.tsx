@@ -1,14 +1,9 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Text, StyleSheet } from "react-native";
 import { Camera, CodeScanner } from "react-native-vision-camera";
+import { router } from 'expo-router';
 
 const BarcodeScanner = () => {
-
-  useEffect(() => {
-    (async () => {
-      const cameraPermissionStatus = await Camera.requestCameraPermission();
-    })();
-  }, []);
 
   const devices = Camera.getAvailableCameraDevices();
   const device = devices.find((d) => d.position === 'back');
@@ -16,10 +11,11 @@ const BarcodeScanner = () => {
   const codeScanner: CodeScanner = {
     codeTypes: ['ean-13'],
     onCodeScanned: (codes) => {
-      console.log(`Scanned ${codes.length} codes!`)
-      codes.forEach((code) => {
-        console.log(`Code: ${code.value}`)
-      })
+      router.replace({pathname: '/productEdit', params: {id: codes[0].value || ''}});
+      // console.log(`Scanned ${codes.length} codes!`)
+      // codes.forEach((code) => {
+      //   console.log(`Code: ${code.value}`)
+      // })
     }
   }
 
