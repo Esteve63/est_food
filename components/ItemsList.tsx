@@ -1,15 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet } from 'react-native';
 import localItems from '../db/local_items.json';
+import Product from '../models/Product'
 
-// Define the types for your items
-interface Item {
-  name: string;
-  stockUnits: number
-}
 
 const MyComponent: React.FC = () => {
-  const [items, setItems] = useState<Item[]>([]);
+  const [items, setItems] = useState<Product[]>([]);
 
   // Fetch data from the API
   useEffect(() => {
@@ -28,7 +24,7 @@ const MyComponent: React.FC = () => {
   }, []);
 
   // Render each item
-  const renderItem = ({ item }: { item: Item }) => (
+  const renderItem = ({ item }: { item: Product }) => (
     <View style={styles.item}>
       <Text style={styles.title}>{item.name}</Text>
       <Text>Stock units: {item.stockUnits}</Text>

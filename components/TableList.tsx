@@ -1,25 +1,28 @@
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Dimensions, Pressable } from 'react-native';
 import localItems from '../db/local_items.json'; // Adjust the path as needed
+import { Link } from 'expo-router';
+import Product from '../models/Product'
 
 // Get the full width of the device
 const fullWidth = Dimensions.get('window').width;
 
-// Define the types for your items
-interface Item {
-  name: string;
-  stockUnits: number;
-}
-
-const MyComponent: React.FC = () => {
-  const items: Item[] = localItems;
+const TableList: React.FC = () => {
+  const items: Product[] = localItems;
 
   // Render each item as a table row
-  const renderRow = (item: Item, index: number) => (
-    <View key={index} style={styles.row}>
-      <Text style={styles.cell}>{item.name}</Text>
-      <Text style={styles.cell}>{item.stockUnits}</Text>
-    </View>
+  const renderRow = (item: Product, index: number) => (
+    <Link href={{pathname: '/productEdit', params: {...item}}} asChild key={index} >
+      <Pressable style={({ pressed }) => [
+        styles.row,
+        pressed && styles.pressedRow // Add this line
+      ]}>
+        <View style={styles.row}>
+          <Text style={styles.cell}>{item.name}</Text>
+          <Text style={styles.cell}>{item.stockUnits}</Text>
+        </View>
+      </Pressable>
+    </Link>
   );
 
   return (
@@ -68,7 +71,10 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     paddingBottom: 120
-  }
+  },
+  pressedRow: {
+    backgroundColor: '#e6e6e6', // Slightly different color when pressed
+  },
 });
 
-export default MyComponent;
+export default TableList;
