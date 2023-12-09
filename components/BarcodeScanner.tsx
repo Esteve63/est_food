@@ -1,7 +1,8 @@
 import React, { useEffect } from "react";
 import { Text, StyleSheet } from "react-native";
 import { Camera, CodeScanner } from "react-native-vision-camera";
-export default function App() {
+
+const BarcodeScanner = () => {
 
   useEffect(() => {
     (async () => {
@@ -32,3 +33,5 @@ export default function App() {
     />
   );
 };
+
+export default BarcodeScanner;

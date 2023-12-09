@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { View, Text, ScrollView, StyleSheet, Dimensions, Pressable } from 'react-native';
 import localItems from '../db/local_items.json'; // Adjust the path as needed
 import { Link } from 'expo-router';
@@ -13,14 +13,9 @@ const TableList: React.FC = () => {
   // Render each item as a table row
   const renderRow = (item: Product, index: number) => (
     <Link href={{pathname: '/productEdit', params: {...item}}} asChild key={index} >
-      <Pressable style={({ pressed }) => [
-        styles.row,
-        pressed && styles.pressedRow // Add this line
-      ]}>
-        <View style={styles.row}>
-          <Text style={styles.cell}>{item.name}</Text>
-          <Text style={styles.cell}>{item.stockUnits}</Text>
-        </View>
+      <Pressable style={styles.row}>
+        <Text style={styles.cell}>{item.name}</Text>
+        <Text style={styles.cell}>{item.stockUnits}</Text>
       </Pressable>
     </Link>
   );

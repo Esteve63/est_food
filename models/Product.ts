@@ -1,4 +1,7 @@
+type EAN13 = string
+
 export default interface Product {
-    name: string;
+    id: EAN13,
+    name: string,
     stockUnits: number
 }

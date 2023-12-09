@@ -1,8 +1,6 @@
-import BarcodeScanner from "../components/BarcodeScanner";
-import { useEffect } from "react";
-import { View } from "../components/Themed";
+import BarcodeScanner from "../../components/BarcodeScanner";
+import { View } from "../../components/Themed";
 import { StyleSheet } from 'react-native';
-import { Camera } from "react-native-vision-camera";
 
 const BarcodeScannerScreen = () => {
 
@@ -12,7 +10,6 @@ const BarcodeScannerScreen = () => {
         </View>
 
     )
-
 }
 
 const styles = StyleSheet.create({

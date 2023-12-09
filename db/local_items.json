@@ -1,105 +1,111 @@
 [
     {
+        "id": "8470006966440",
         "name": "Item 1",
         "stockUnits": 10
     },
     {
+        "id": "8435429503658",
         "name": "Item 2",
         "stockUnits": 7
     },
     {
+        "id": "8470006966440",
         "name": "Item 1",
         "stockUnits": 10
     },
     {
+        "id": "8435429503658",
         "name": "Item 2",
         "stockUnits": 7
     },
     {
+        "id": "8470006966440",
         "name": "Item 1",
         "stockUnits": 10
     },
     {
+        "id": "8435429503658",
         "name": "Item 2",
         "stockUnits": 7
     },
     {
+        "id": "8470006966440",
         "name": "Item 1",
         "stockUnits": 10
     },
     {
+        "id": "8435429503658",
         "name": "Item 2",
         "stockUnits": 7
     },
     {
+        "id": "8470006966440",
         "name": "Item 1",
         "stockUnits": 10
     },
     {
+        "id": "8435429503658",
         "name": "Item 2",
         "stockUnits": 7
     },
     {
+        "id": "8470006966440",
         "name": "Item 1",
         "stockUnits": 10
     },
     {
+        "id": "8435429503658",
         "name": "Item 2",
         "stockUnits": 7
     },
     {
+        "id": "8470006966440",
         "name": "Item 1",
         "stockUnits": 10
     },
     {
+        "id": "8435429503658",
         "name": "Item 2",
         "stockUnits": 7
     },
     {
+        "id": "8470006966440",
         "name": "Item 1",
         "stockUnits": 10
     },
     {
+        "id": "8435429503658",
         "name": "Item 2",
         "stockUnits": 7
     },
     {
+        "id": "8470006966440",
         "name": "Item 1",
         "stockUnits": 10
     },
     {
+        "id": "8435429503658",
         "name": "Item 2",
         "stockUnits": 7
     },
     {
+        "id": "8470006966440",
         "name": "Item 1",
         "stockUnits": 10
     },
     {
+        "id": "8435429503658",
         "name": "Item 2",
         "stockUnits": 7
     },
     {
+        "id": "8470006966440",
         "name": "Item 1",
         "stockUnits": 10
     },
     {
-        "name": "Item 2",
-        "stockUnits": 7
-    },
-    {
-        "name": "Item 1",
-        "stockUnits": 10
-    },
-    {
-        "name": "Item 2",
-        "stockUnits": 7
-    },
-    {
-        "name": "Item 1",
-        "stockUnits": 10
-    },
-    {
+        "id": "8435429503658",
         "name": "Item 2 last",
         "stockUnits": 7
     }
