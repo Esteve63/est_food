@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  web:
+    build: ./api
+    command: uvicorn app.main:app --reload --workers 4 --host 0.0.0.0 --port 8000
+    volumes:
+      - ./api:/usr/src/app
+    ports:
+      - 8004:8000
+    environment:
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+    networks:
+      - foouse_server_network
+    depends_on:
+      - db
+  db:
+    image: postgres:16.1 # Last available version on 10/12/2023
+    container_name: foouse_db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    volumes:
+      - ./db_data:/var/lib/postgresql/data
+    networks:
+      - foouse_server_network
+networks:
+  foouse_server_network:
+    name: foouse_server_network

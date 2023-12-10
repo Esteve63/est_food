@@ -1,0 +1,8 @@
+# Python environment
+env
+
+# Environment file with sensitive data
+.env
+
+# DB data persistance
+db_data
