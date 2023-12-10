@@ -13,10 +13,10 @@ from alembic import context
 config = context.config
 
 # Update db connection with environment variables
-db_user = os.environ("DB_USER")
-db_password = os.environ("DB_PASSWORD")
-db_name = os.environ("DB_NAME")
-db_url = f'postgresql+asyncpg://{db_user}:{db_password}@host/{db_name}'
+db_user = os.getenv("DB_USER")
+db_password = os.getenv("DB_PASSWORD")
+db_name = os.getenv("DB_NAME")
+db_url = f'postgresql+asyncpg://{db_user}:{db_password}@foouse_db/{db_name}'
 config.set_main_option("sqlalchemy.url", db_url)
 
 # Interpret the config file for Python logging.
@@ -28,7 +28,10 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = None
+# target_metadata = None
+from sqlmodel import SQLModel
+from app.models import * # Import all models
+target_metadata = SQLModel.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
