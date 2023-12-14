@@ -11,7 +11,6 @@ async def pong():
 
 @app.get('/get_product')
 async def get_product(id: str) -> models.Product:
-    # id = '8435429503658'
 
     tic = time.time()
     product_name = util.get_product_name_from_ean_search(id)
