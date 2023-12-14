@@ -1,6 +1,7 @@
-from sqlmodel import SQLModel, Field
+from sqlmodel import Field, SQLModel
 
-class Hero(SQLModel, table=True):
-    id: int = Field(default=None, primary_key=True)
-    name: str
-    age: int
+
+class Product(SQLModel, table=True):
+    id: str = Field(default=None, primary_key=True, max_length=13)
+    name: str = None
+    units: int = None
