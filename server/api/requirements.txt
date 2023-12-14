@@ -4,7 +4,3 @@ asyncpg==0.29.0
 fastapi==0.104.1
 sqlmodel==0.0.14
 uvicorn==0.24.0.post1
-
-# Scraping
-requests
-beautifulsoup4
