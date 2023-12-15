@@ -1,6 +1,6 @@
 import React from "react";
 import { Text, StyleSheet } from "react-native";
-import { Camera, CodeScanner } from "react-native-vision-camera";
+import { Camera, CodeScanner, CameraCaptureError } from "react-native-vision-camera";
 import { router } from 'expo-router';
 
 const BarcodeScanner = () => {
@@ -12,14 +12,10 @@ const BarcodeScanner = () => {
     codeTypes: ['ean-13'],
     onCodeScanned: (codes) => {
       router.replace({pathname: '/productEdit', params: {id: codes[0].value || ''}});
-      // console.log(`Scanned ${codes.length} codes!`)
-      // codes.forEach((code) => {
-      //   console.log(`Code: ${code.value}`)
-      // })
     }
   }
 
-  if (device == null) return (<Text>CAMERA ERROR</Text>)
+  if (device == null) return CameraCaptureError
   return (
     <Camera
       device={device}
