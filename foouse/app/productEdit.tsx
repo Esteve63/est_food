@@ -13,7 +13,7 @@ export default function ModalScreen() {
       try {
         const response = await fetch(`http://192.168.0.16:8004/get_product/?id=${params.id}`);
         const data = await response.json();
-        setProductName(data.name);
+        setProductName(data.name !== '' ? data.name : 'Unknown');
       } catch (error) {
         console.error('Error fetching product name:', error);
       }
@@ -26,8 +26,9 @@ export default function ModalScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{productName} #{params.id}</Text>
+      <Text style={styles.title}>{productName}</Text>
       <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+      <Text>#{params.id}</Text>
 
       <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
     </View>

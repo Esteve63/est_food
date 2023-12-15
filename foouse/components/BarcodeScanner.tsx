@@ -11,11 +11,11 @@ const BarcodeScanner = () => {
   const codeScanner: CodeScanner = {
     codeTypes: ['ean-13'],
     onCodeScanned: (codes) => {
-      router.replace({pathname: '/productEdit', params: {id: codes[0].value || ''}});
+      router.push({pathname: '/productEdit', params: {id: codes[0].value || ''}});
     }
   }
 
-  if (device == null) return CameraCaptureError
+  if (device == null) return (<Text>NO CAMERA DEVICE</Text>)
   return (
     <Camera
       device={device}

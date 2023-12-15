@@ -8,7 +8,6 @@ const BarcodeScannerScreen = () => {
         <View style={styles.container}>
             <BarcodeScanner></BarcodeScanner>
         </View>
-
     )
 }
 
