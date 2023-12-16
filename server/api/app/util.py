@@ -2,6 +2,16 @@ import http.client
 import gzip
 from io import BytesIO
 import re
+import os
+import sqlmodel
+
+def get_db_engine():
+    db_user = os.getenv("DB_USER")
+    db_password = os.getenv("DB_PASSWORD")
+    db_name = os.getenv("DB_NAME")
+    db_url = f'postgresql+psycopg2://{db_user}:{db_password}@foouse_db/{db_name}'
+
+    return sqlmodel.create_engine(db_url)
 
 def find_text_between_keys(input_string, start_key, end_key) -> str:
     # Create a regex pattern to find text between start_key and end_key
