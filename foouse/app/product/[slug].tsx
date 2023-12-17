@@ -10,7 +10,7 @@ import * as Yup from 'yup';
 
 const ProductSchema = Yup.object().shape({
   name: Yup.string().required('Required'),
-  stock: Yup.number().required('Required').positive('Must be positive').integer('Must be an integer'),
+  stock: Yup.number().required('Required')
 });
 
 
@@ -45,7 +45,33 @@ export default function ModalScreen() {
     }))
   }
 
+  const stockChange = (stock: string) => {
+    setProduct(currentProduct => ({
+      ...currentProduct,
+      stock: Number(stock)
+    }))
+  }
 
+  const submit = async (product: Product) => {
+    console.log(product);
+    await save(product);
+    // router.back();
+    router.replace('/(tabs)')
+  }
+
+  const save = async (product: Product) => {
+    try {
+      await fetch(`http://192.168.0.16:8004/product/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(product),
+      });
+    } catch (error) {
+        console.error('Error in POST request:', error);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -53,15 +79,14 @@ export default function ModalScreen() {
       <Formik
         initialValues={{name: product.name, stock: product.stock}}
         validationSchema={ProductSchema}
-        onSubmit={values => onSubmit(values)}
+        onSubmit={() => submit(product)}
       >
-        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+        {({ handleSubmit, values, errors, touched }) => (
           <>
             <TextInput
               label="Name"
               value={product.name}
               onChangeText={nameChange}
-              onBlur={handleBlur('name')}
               error={touched.name && !!errors.name}
               style={styles.form}
             />
@@ -71,9 +96,8 @@ export default function ModalScreen() {
 
             <TextInput
               label="Stock"
-              value={values.stock.toString()}
-              onChangeText={handleChange('stock')}
-              onBlur={handleBlur('stock')}
+              value={product.stock.toString()}
+              onChangeText={stockChange}
               error={touched.stock && !!errors.stock}
               keyboardType="numeric"
               style={styles.form}
@@ -81,7 +105,7 @@ export default function ModalScreen() {
             {touched.stock && errors.stock && (
               <Text style={{ color: 'red' }}>{errors.stock}</Text>
             )}
-         <Button onPress={handleSubmit} title="OK"/>
+         <Button onPress={() => handleSubmit()} title="OK"/>
           </>
         )}
       </Formik>
