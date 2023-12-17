@@ -49,7 +49,7 @@ function RootLayoutNav() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="productEdit" options={{ title: 'Product Edit', presentation: 'modal' }} />
+        <Stack.Screen name="product/[slug]" options={{ title: 'Product Edit', presentation: 'modal' }} />
       </Stack>
     </ThemeProvider>
   );

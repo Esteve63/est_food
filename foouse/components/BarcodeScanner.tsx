@@ -11,7 +11,12 @@ const BarcodeScanner = () => {
   const codeScanner: CodeScanner = {
     codeTypes: ['ean-13'],
     onCodeScanned: (codes) => {
-      router.push({pathname: '/productEdit', params: {id: codes[0].value || ''}});
+
+      if (!codes[0].value) {
+        return;
+      }
+
+      router.push(`/product/${codes[0].value}`);
     }
   }
 

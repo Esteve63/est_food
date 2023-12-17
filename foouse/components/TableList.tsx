@@ -28,7 +28,7 @@ const TableList: React.FC = () => {
 
   // Render each item as a table row
   const renderRow = (item: Product, index: number) => (
-    <Link href={{pathname: '/productEdit', params: {...item}}} asChild key={index} >
+    <Link href={`/product/${item.id}`} asChild key={index} >
       <Pressable style={styles.row}>
         <Text style={styles.cell}>{item.name}</Text>
         <Text style={styles.cell}>{item.stock}</Text>

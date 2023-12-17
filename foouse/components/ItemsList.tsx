@@ -27,7 +27,7 @@ const MyComponent: React.FC = () => {
   const renderItem = ({ item }: { item: Product }) => (
     <View style={styles.item}>
       <Text style={styles.title}>{item.name}</Text>
-      <Text>Stock units: {item.stockUnits}</Text>
+      <Text>Stock  {item.stock}</Text>
     </View>
   );
 
