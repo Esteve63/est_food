@@ -30,11 +30,11 @@ async def get_product(id: str) -> models.Product:
     '''
     Get product by ID
     '''
-    
+
     with sqlmodel.Session(engine) as session:
         statement = sqlmodel.select(models.Product).where(models.Product.id==id)
         result = session.exec(statement)
-        product = result.one()
+        product = result.first()
 
     if product is None:
         product_name = util.get_product_name_from_ean_search(id)

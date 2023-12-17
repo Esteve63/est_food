@@ -53,7 +53,6 @@ export default function ModalScreen() {
   }
 
   const submit = async (product: Product) => {
-    console.log(product);
     await save(product);
     // router.back();
     router.replace('/(tabs)')
