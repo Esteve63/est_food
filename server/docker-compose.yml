@@ -17,6 +17,8 @@ services:
       - foouse_server_network
     depends_on:
       - db
+    restart:
+      always
   db:
     image: postgres:16.1 # Last available version on 10/12/2023
     container_name: foouse_db
@@ -30,6 +32,8 @@ services:
       - ./db_data:/var/lib/postgresql/data
     networks:
       - foouse_server_network
+    restart:
+      always
 networks:
   foouse_server_network:
     name: foouse_server_network
