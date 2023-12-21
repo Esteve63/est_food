@@ -10,17 +10,12 @@ const fullWidth = Dimensions.get('window').width;
 const TableList: React.FC = () => {
   // const items: Product[] = localItems;
   const [products, setProducts] = useState([])
-  const [infoText, setInfoText] = useState('')
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        let tmpInfoText = `\n${process.env.EXPO_PUBLIC_API_URL}`
         const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/products`);
-        tmpInfoText += `\n${response.status.toString()}`
         const data = await response.json();
-        tmpInfoText += `\n${data.length}`
-        setInfoText(tmpInfoText)
         setProducts(data);
       } catch (error) {
         console.error('Error fetching product name:', error);
@@ -43,8 +38,6 @@ const TableList: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      {/* <Text>{process.env.EXPO_PUBLIC_API_URL}</Text> */}
-      <Text>{infoText}</Text>
       {/* Table Header */}
       <View style={styles.header}>
         <Text style={styles.headerCell}>Name</Text>
