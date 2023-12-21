@@ -39,13 +39,29 @@
     },
     "plugins": [
       "expo-router",
-      ["react-native-vision-camera",
-      {
-        "enableCodeScanner": true
-      }]
+      [
+        "react-native-vision-camera",
+        {
+          "enableCodeScanner": true
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "da493840-a7da-41e6-a905-27d72ede0e6a"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/da493840-a7da-41e6-a905-27d72ede0e6a"
     }
   }
 }

@@ -27,7 +27,7 @@ export default function ModalScreen() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await fetch(`http://192.168.0.16:8004/products/${slug}`);
+        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/products/${slug}`);
         const data = await response.json();
         setProduct(data);
       } catch (error) {
@@ -60,7 +60,7 @@ export default function ModalScreen() {
 
   const save = async (product: Product) => {
     try {
-      await fetch(`http://192.168.0.16:8004/product/`, {
+      await fetch(`${process.env.EXPO_PUBLIC_API_URL}/product/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
