@@ -60,7 +60,7 @@ export default function ModalScreen() {
 
   const save = async (product: Product) => {
     try {
-      await fetch(`${process.env.EXPO_PUBLIC_API_URL}/product/`, {
+      await fetch(`${process.env.EXPO_PUBLIC_API_URL}/product`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
