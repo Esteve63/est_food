@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button, StyleSheet } from 'react-native';
 import { Text, View } from '../../components/Themed';
 import { useLocalSearchParams } from 'expo-router';
-import { Formik, Field, Form, FormikHelpers } from 'formik';
+import { Formik } from 'formik';
 import { TextInput } from 'react-native-paper';
 import Product from '../../models/Product';
 import { router } from 'expo-router';
@@ -23,6 +23,8 @@ export default function ModalScreen() {
     name: 'Unknown',
     stock: 0
   });
+  // Use local state for form fields
+  const [formValues, setFormValues] = useState({ name: '', stock: '' });
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -30,6 +32,7 @@ export default function ModalScreen() {
         const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/products/${slug}`);
         const data = await response.json();
         setProduct(data);
+        setFormValues({ name: data.name, stock: data.stock.toString() });
       } catch (error) {
         console.error('Error fetching product:', error);
       }
@@ -39,22 +42,23 @@ export default function ModalScreen() {
   }, []);
 
   const nameChange = (name: string) => {
-    setProduct(currentProduct => ({
+    setFormValues(currentProduct => ({
       ...currentProduct,
       name: name
     }))
   }
 
   const stockChange = (stock: string) => {
-    setProduct(currentProduct => ({
+    setFormValues(currentProduct => ({
       ...currentProduct,
-      stock: Number(stock)
+      stock: stock
     }))
   }
 
   const submit = async (product: Product) => {
+    product.name = formValues.name;
+    product.stock = Number(formValues.stock);
     await save(product);
-    // router.back();
     router.replace('/(tabs)')
   }
 
@@ -84,7 +88,7 @@ export default function ModalScreen() {
           <>
             <TextInput
               label="Name"
-              value={product.name}
+              value={formValues.name}
               onChangeText={nameChange}
               error={touched.name && !!errors.name}
               style={styles.form}
@@ -95,7 +99,7 @@ export default function ModalScreen() {
 
             <TextInput
               label="Stock"
-              value={product.stock.toString()}
+              value={formValues.stock}
               onChangeText={stockChange}
               error={touched.stock && !!errors.stock}
               keyboardType="numeric"
