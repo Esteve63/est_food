@@ -48,8 +48,7 @@ def set_product(product: models.Product):
     '''
     Save or update product
     '''
-    print(product, type(product))
-
+    
     with sqlmodel.Session(engine) as session:
         
         # Check if product exists
