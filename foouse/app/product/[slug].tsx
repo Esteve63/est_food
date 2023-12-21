@@ -41,28 +41,21 @@ export default function ModalScreen() {
     fetchProduct();
   }, []);
 
-  const nameChange = (name: string) => {
-    setFormValues(currentProduct => ({
-      ...currentProduct,
-      name: name
-    }))
-  }
+  const handleChange = (fieldName: string, value: string) => {
+    setFormValues(currentValues => ({
+      ...currentValues,
+      [fieldName]: value
+    }));
+  };
 
-  const stockChange = (stock: string) => {
-    setFormValues(currentProduct => ({
-      ...currentProduct,
-      stock: stock
-    }))
-  }
-
-  const submit = async (product: Product) => {
+  const submit = async () => {
     product.name = formValues.name;
     product.stock = Number(formValues.stock);
-    await save(product);
+    await save();
     router.replace('/(tabs)')
   }
 
-  const save = async (product: Product) => {
+  const save = async () => {
     try {
       await fetch(`${process.env.EXPO_PUBLIC_API_URL}/product`, {
         method: 'POST',
@@ -82,14 +75,14 @@ export default function ModalScreen() {
       <Formik
         initialValues={{name: product.name, stock: product.stock}}
         validationSchema={ProductSchema}
-        onSubmit={() => submit(product)}
+        onSubmit={submit}
       >
         {({ handleSubmit, values, errors, touched }) => (
           <>
             <TextInput
               label="Name"
               value={formValues.name}
-              onChangeText={nameChange}
+              onChangeText={(value) => handleChange('name', value)}
               error={touched.name && !!errors.name}
               style={styles.form}
             />
@@ -100,7 +93,7 @@ export default function ModalScreen() {
             <TextInput
               label="Stock"
               value={formValues.stock}
-              onChangeText={stockChange}
+              onChangeText={(value) => handleChange('stock', value)}
               error={touched.stock && !!errors.stock}
               keyboardType="numeric"
               style={styles.form}
