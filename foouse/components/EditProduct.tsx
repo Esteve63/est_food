@@ -52,7 +52,12 @@ const EditProduct = () => {
     product.name = formValues.name;
     product.stock = Number(formValues.stock);
     await save();
-    router.replace('/(tabs)')
+
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/(tabs)');
+    }
   }
 
   const save = async () => {
