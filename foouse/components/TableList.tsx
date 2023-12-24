@@ -1,17 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, Dimensions, Pressable } from 'react-native';
-import localItems from '../db/local_items.json'; // Adjust the path as needed
-import { Link } from 'expo-router';
+import { Link, useFocusEffect } from 'expo-router';
 import Product from '../models/Product'
 
 // Get the full width of the device
 const fullWidth = Dimensions.get('window').width;
 
 const TableList: React.FC = () => {
-  // const items: Product[] = localItems;
   const [products, setProducts] = useState([])
 
-  useEffect(() => {
+  useFocusEffect(() => {
     const fetchProducts = async () => {
       try {
         const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/products`);
@@ -24,7 +22,7 @@ const TableList: React.FC = () => {
 
     fetchProducts();
 
-  }, []);
+  });
 
   // Render each item as a table row
   const renderRow = (item: Product, index: number) => (
