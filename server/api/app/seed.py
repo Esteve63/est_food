@@ -6,8 +6,11 @@ def main():
 
     engine = util.get_db_engine()
     with sqlmodel.Session(engine) as session:
-        warehouse = models.Warehouse(name='BCN')
-        session.add(warehouse)
+        bcn = models.Warehouse(name='BCN')
+        pdm = models.Warehouse(name='PREMIÀ DE MAR')
+
+        session.add(bcn)
+        session.add(pdm)
 
         session.commit()
 
