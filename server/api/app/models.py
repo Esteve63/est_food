@@ -1,7 +1,9 @@
 from sqlmodel import Field, SQLModel
 import typing as tp
 
-
+'''
+DB models
+'''
 class Warehouse(SQLModel, table=True):
     id: tp.Optional[int] = Field(default_factory=None, primary_key=True)
     name: str = Field(max_length=20)
@@ -18,3 +20,11 @@ class Product(SQLModel, table=True):
     value: int = 0
     units: str = ''
     stock: int = 0
+
+'''
+Helper models
+'''
+class CategorySimple(SQLModel):
+    warehouse_id: int
+    name: str
+    stock: int

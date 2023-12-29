@@ -12,17 +12,22 @@ async def pong():
     return {'ping': 'pong!'}
 
 
-@app.get('/products')
-async def products() -> tp.List[models.Product]:
+@app.get('/{warehouse_id}/categories')
+async def categories(warehouse_id: int) -> tp.List[models.CategorySimple]:
     '''
     Get all products
     '''
-
     with sqlmodel.Session(engine) as session:
-        statement = sqlmodel.select(models.Product)
-        results = session.exec(statement)
+        statement = sqlmodel.select(
+            models.Product.category_name, sqlmodel.func.sum(models.Product.stock).label('stock')
+        ).where(
+            models.Product.warehouse_id == warehouse_id
+        ).group_by(models.Product.category_name)
 
-        return results.all()
+        results = session.exec(statement).all()
+
+        return [models.CategorySimple(warehouse_id=warehouse_id, name=result[0], stock=result[1]) for result in results]
+
 
 
 @app.get('/products/{id}')

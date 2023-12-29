@@ -6,3 +6,6 @@ env
 
 # DB data persistance
 db_data
+
+# Playground
+pg.py
