@@ -28,3 +28,9 @@ class CategorySimple(SQLModel):
     warehouse_id: int
     name: str
     stock: int
+
+class CategoryDetail(SQLModel):
+    warehouse_id: int
+    name: str
+    min_stock: int
+    products: tp.List[Product]

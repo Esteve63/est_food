@@ -15,7 +15,7 @@ async def pong():
 @app.get('/{warehouse_id}/categories')
 async def categories(warehouse_id: int) -> tp.List[models.CategorySimple]:
     '''
-    Get all products
+    Get all categories
     '''
     with sqlmodel.Session(engine) as session:
         statement = sqlmodel.select(
@@ -28,6 +28,20 @@ async def categories(warehouse_id: int) -> tp.List[models.CategorySimple]:
 
         return [models.CategorySimple(warehouse_id=warehouse_id, name=result[0], stock=result[1]) for result in results]
 
+@app.get('/{warehouse_id}/categories/{category_id}')
+async def get_category(warehouse_id: int, category_id: str) -> None:
+    '''
+    Get category by ID
+    '''
+
+    with sqlmodel.Session(engine) as session:
+        statement = sqlmodel.select(models.Product).where(
+            models.Product.warehouse_id == warehouse_id,
+            models.Product.category_name==category_id
+        )
+        products = session.exec(statement).all()
+
+        return [models.CategoryDetail(warehouse_id=warehouse_id, name=category_id, min_stock=0, products=products)]
 
 
 @app.get('/products/{id}')
