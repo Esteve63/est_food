@@ -26,7 +26,7 @@ const TableList: React.FC = () => {
 
   // Render each item as a table row
   const renderRow = (item: CategorySimple, index: number) => (
-    <Link href={`/product/${item.name}`} asChild key={index} >
+    <Link href={`/category/${item.name}`} asChild key={index} >
       <Pressable style={styles.row}>
         <Text style={styles.cell}>{item.name}</Text>
         <Text style={styles.cell}>{item.stock}</Text>
