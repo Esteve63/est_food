@@ -1,32 +1,32 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, Dimensions, Pressable } from 'react-native';
 import { Link, useFocusEffect } from 'expo-router';
-import Product from '../models/Product'
+import CategorySimple from '../models/CategorySimple'
 
 // Get the full width of the device
 const fullWidth = Dimensions.get('window').width;
 
 const TableList: React.FC = () => {
-  const [products, setProducts] = useState([])
+  const [categories, setCategories] = useState([])
 
   useFocusEffect(() => {
-    const fetchProducts = async () => {
+    const fetchCategories = async () => {
       try {
-        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/products`);
+        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/1/categories`);
         const data = await response.json();
-        setProducts(data);
+        setCategories(data);
       } catch (error) {
-        console.error('Error fetching product name:', error);
+        console.error('Error fetching categories:', error);
       }
     };
 
-    fetchProducts();
+    fetchCategories();
 
   });
 
   // Render each item as a table row
-  const renderRow = (item: Product, index: number) => (
-    <Link href={`/product/${item.id}`} asChild key={index} >
+  const renderRow = (item: CategorySimple, index: number) => (
+    <Link href={`/product/${item.name}`} asChild key={index} >
       <Pressable style={styles.row}>
         <Text style={styles.cell}>{item.name}</Text>
         <Text style={styles.cell}>{item.stock}</Text>
@@ -44,7 +44,7 @@ const TableList: React.FC = () => {
 
       {/* Table Rows */}
       <ScrollView>
-        {products.map((item, index) => renderRow(item, index))}
+        {categories.map((item, index) => renderRow(item, index))}
       </ScrollView>
     </View>
   );
