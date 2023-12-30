@@ -26,7 +26,7 @@ def find_text_between_keys(input_string, start_key, end_key) -> str:
     else:
         return ''
     
-def get_product_name_from_ean_search(id: str) -> str:
+def get_product_name_from_ean_search(ean_code: str) -> str:
     conn = http.client.HTTPSConnection('www.ean-search.org')
     headers = {
     'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101 Firefox/102.0',
@@ -42,7 +42,7 @@ def get_product_name_from_ean_search(id: str) -> str:
     'Sec-Fetch-Site': 'same-origin',
     'Sec-Fetch-User': '?1'
     }
-    conn.request('GET', f'/?q={id}', '', headers)
+    conn.request('GET', f'/?q={ean_code}', '', headers)
     res = conn.getresponse()
 
     if res.getheader('Content-Encoding') == 'gzip':
@@ -54,6 +54,6 @@ def get_product_name_from_ean_search(id: str) -> str:
 
     html = data.decode('utf-8') 
 
-    product_name = find_text_between_keys(html, id, '</title>')
+    product_name = find_text_between_keys(html, ean_code, '</title>')
 
     return product_name

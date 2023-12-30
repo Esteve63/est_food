@@ -35,30 +35,45 @@ async def get_category(warehouse_id: int, category_id: str) -> None:
     '''
 
     with sqlmodel.Session(engine) as session:
+        statement = sqlmodel.select(models.Category.min_stock).where(
+            models.Category.warehouse_id == warehouse_id,
+            models.Category.name==category_id
+        )
+        min_stock = session.exec(statement).first()
+
         statement = sqlmodel.select(models.Product).where(
             models.Product.warehouse_id == warehouse_id,
             models.Product.category_name==category_id
         )
         products = session.exec(statement).all()
 
-        return [models.CategoryDetail(warehouse_id=warehouse_id, name=category_id, min_stock=0, products=products)]
+        return models.CategoryDetail(warehouse_id=warehouse_id, name=category_id, min_stock=min_stock, products=products)
 
 
-@app.get('/products/{id}')
-async def get_product(id: str) -> models.Product:
+@app.get('/{warehouse_id}/products/{ean_code}')
+async def get_product(warehouse_id: int, ean_code: str) -> models.Product:
     '''
     Get product by ID
     '''
 
     with sqlmodel.Session(engine) as session:
-        statement = sqlmodel.select(models.Product).where(models.Product.id==id)
+        statement = sqlmodel.select(
+            models.Product
+        ).where(
+            models.Product.warehouse_id == warehouse_id,
+            models.Product.ean_code == ean_code
+        )
         result = session.exec(statement)
         product = result.first()
 
     if product is None:
-        product_name = util.get_product_name_from_ean_search(id)
+        product_name = util.get_product_name_from_ean_search(ean_code)
 
-        product = models.Product(id=id, name=product_name, stock=0)
+        product = models.Product(
+            ean_code=ean_code,
+            warehouse_id=warehouse_id,
+            category_name=product_name
+        )
 
     return product
 
