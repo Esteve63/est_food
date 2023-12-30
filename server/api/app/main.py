@@ -77,23 +77,37 @@ async def get_product(warehouse_id: int, ean_code: str) -> models.Product:
 
     return product
 
-@app.post('/product')
+@app.post('/{warehouse_id}/product')
 def set_product(product: models.Product):
     '''
     Save or update product
     '''
     
     with sqlmodel.Session(engine) as session:
+        # Check if category exists
+        statement = sqlmodel.select(models.Category).where(
+            models.Category.warehouse_id==product.warehouse_id,
+            models.Category.name==product.category_name
+        )
+        category = session.exec(statement).first()
+
+        # If category does not exist, create it
+        if category is None:
+            category = models.Category(warehouse_id=product.warehouse_id, name=product.category_name)
+            session.add(category)
         
         # Check if product exists
-        statement = sqlmodel.select(models.Product).where(models.Product.id==product.id)
-        result = session.exec(statement)
-        db_product = result.first()
+        statement = sqlmodel.select(models.Product).where(
+            models.Product.warehouse_id==product.warehouse_id,
+            models.Product.ean_code==product.ean_code
+        )
+        db_product = session.exec(statement).first()
 
-        # If exists, update
+        # If product already exists, update
         if db_product is not None:
-            db_product.stock = product.stock
-            db_product.name = product.name
+            for k, v in dict(product).items():
+                setattr(db_product, k, v)
+
             product = db_product
 
         session.add(product)
