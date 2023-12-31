@@ -19,7 +19,7 @@ async def pong():
 
 
 @app.get('/{warehouse_id}/categories')
-async def categories(warehouse_id: int, session: Session = Depends(get_session)) -> tp.List[models.Category]:
+async def get_categories(warehouse_id: int, session: Session = Depends(get_session)) -> tp.List[models.Category]:
     '''
     Get all categories
     '''
@@ -33,9 +33,9 @@ async def categories(warehouse_id: int, session: Session = Depends(get_session))
         models.Category.warehouse_id == warehouse_id
     ).group_by(models.Category.id)
 
-    results = session.exec(statement).all()
+    categories = session.exec(statement).all()
 
-    return [models.Category(id=result[0], warehouse_id=warehouse_id, name=result[1], stock=result[2]) for result in results]
+    return [models.Category(id=category[0], warehouse_id=warehouse_id, name=category[1], stock=category[2]) for category in categories]
 
 @app.get('/{warehouse_id}/category/{category_id}')
 async def get_category(_: int, category_id: int, session: Session = Depends(get_session)) -> None:
@@ -76,6 +76,22 @@ def set_category(_: int, category: models.Product, session: Session = Depends(ge
 
     session.add(category)
     session.commit()
+
+@app.get('/{warehouse_id}/{category_id}/products')
+async def get_products(_: int, category_id: int, session: Session = Depends(get_session)) -> tp.List[models.Product]:
+    '''
+    Get all products of a category
+    '''
+
+    statement = sqlmodel.select(
+        models.Product
+    ).where(
+        models.Product.category_id == category_id
+    )
+
+    products = session.exec(statement).all()
+
+    return products
 
 
 @app.get('/{warehouse_id}/product/{ean_code}')
