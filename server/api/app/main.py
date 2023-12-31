@@ -1,11 +1,17 @@
 import app.models as models
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Depends
 import app.util as util
 import typing as tp
 import sqlmodel
+from sqlmodel import Session
 
 engine = util.get_db_engine()
 app = FastAPI()
+
+# Dependency to get a SQLModel session
+def get_session():
+    with sqlmodel.Session(engine) as session:
+        yield session
 
 @app.get('/ping')
 async def pong():
@@ -13,102 +19,83 @@ async def pong():
 
 
 @app.get('/{warehouse_id}/categories')
-async def categories(warehouse_id: int) -> tp.List[models.CategorySimple]:
+async def categories(warehouse_id: int, session: Session = Depends(get_session)) -> tp.List[models.Category]:
     '''
     Get all categories
     '''
-    with sqlmodel.Session(engine) as session:
-        statement = sqlmodel.select(
-            models.Product.category_name, sqlmodel.func.sum(models.Product.stock).label('stock')
-        ).where(
-            models.Product.warehouse_id == warehouse_id
-        ).group_by(models.Product.category_name)
 
-        results = session.exec(statement).all()
+    statement = sqlmodel.select(
+        models.Category.id, models.Category.name, sqlmodel.func.sum(models.Product.stock).label('stock')
+    ).join(
+        models.Product,
+        models.Product.category_id == models.Category.id
+    ).where(
+        models.Category.warehouse_id == warehouse_id
+    ).group_by(models.Category.id)
 
-        return [models.CategorySimple(warehouse_id=warehouse_id, name=result[0], stock=result[1]) for result in results]
+    results = session.exec(statement).all()
 
-@app.get('/{warehouse_id}/categories/{category_id}')
-async def get_category(warehouse_id: int, category_id: str) -> None:
+    return [models.Category(id=result[0], warehouse_id=warehouse_id, name=result[1], stock=result[2]) for result in results]
+
+@app.get('/{warehouse_id}/category/{category_id}')
+async def get_category(_: int, category_id: int, session: Session = Depends(get_session)) -> None:
     '''
     Get category by ID
     '''
 
-    with sqlmodel.Session(engine) as session:
-        statement = sqlmodel.select(models.Category.min_stock).where(
-            models.Category.warehouse_id == warehouse_id,
-            models.Category.name==category_id
-        )
-        min_stock = session.exec(statement).first()
+    statement = sqlmodel.select(models.Category).where(
+        models.Category.id==category_id
+    )
+    category = session.exec(statement).first()
 
-        statement = sqlmodel.select(models.Product).where(
-            models.Product.warehouse_id == warehouse_id,
-            models.Product.category_name==category_id
-        )
-        products = session.exec(statement).all()
+    if category is None:
+        raise HTTPException(status_code=404, detail="Category not found")
 
-        return models.CategoryDetail(warehouse_id=warehouse_id, name=category_id, min_stock=min_stock, products=products)
+    return category
 
 
-@app.get('/{warehouse_id}/products/{ean_code}')
-async def get_product(warehouse_id: int, ean_code: str) -> models.Product:
+@app.get('/{warehouse_id}/product/{ean_code}')
+async def get_product(warehouse_id: int, ean_code: str, session: Session = Depends(get_session)) -> models.Product:
     '''
-    Get product by ID
+    Get product by EAN code
     '''
 
-    with sqlmodel.Session(engine) as session:
-        statement = sqlmodel.select(
-            models.Product
-        ).where(
-            models.Product.warehouse_id == warehouse_id,
-            models.Product.ean_code == ean_code
-        )
-        result = session.exec(statement)
-        product = result.first()
+    statement = sqlmodel.select(
+        models.Product
+    ).join(
+        models.Category,
+        models.Category.id == models.Product.category_id
+    ).where(
+        models.Product.ean_code == ean_code,
+        models.Category.warehouse_id == warehouse_id
+    )
+    product = session.exec(statement).first()
 
     if product is None:
-        product_name = util.get_product_name_from_ean_search(ean_code)
-
-        product = models.Product(
-            ean_code=ean_code,
-            warehouse_id=warehouse_id,
-            category_name=product_name
-        )
+        raise HTTPException(status_code=404, detail="Product not found")
 
     return product
 
 @app.post('/{warehouse_id}/product')
-def set_product(product: models.Product):
+def set_product(_: int, product: models.Product, session: Session = Depends(get_session)):
     '''
     Save or update product
     '''
-    
-    with sqlmodel.Session(engine) as session:
-        # Check if category exists
-        statement = sqlmodel.select(models.Category).where(
-            models.Category.warehouse_id==product.warehouse_id,
-            models.Category.name==product.category_name
-        )
-        category = session.exec(statement).first()
 
-        # If category does not exist, create it
-        if category is None:
-            category = models.Category(warehouse_id=product.warehouse_id, name=product.category_name)
-            session.add(category)
-        
-        # Check if product exists
+    # If product has an ID, look for it
+    db_product = None
+    if product.id is not None and product.id != 0:
         statement = sqlmodel.select(models.Product).where(
-            models.Product.warehouse_id==product.warehouse_id,
-            models.Product.ean_code==product.ean_code
+            models.Product.id==product.id
         )
         db_product = session.exec(statement).first()
 
-        # If product already exists, update
-        if db_product is not None:
-            for k, v in dict(product).items():
-                setattr(db_product, k, v)
+    # If product already exists, update
+    if db_product is not None:
+        for k, v in dict(product).items():
+            setattr(db_product, k, v)
 
-            product = db_product
+        product = db_product
 
-        session.add(product)
-        session.commit()
+    session.add(product)
+    session.commit()

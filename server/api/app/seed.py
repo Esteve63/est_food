@@ -27,8 +27,7 @@ def main():
         try:
             rice_product = models.Product(
                 ean_code='3560070826292',
-                warehouse_id=1,
-                category_name='Arròs',
+                category_id=1,
                 value=1,
                 units='kg',
                 stock=1
