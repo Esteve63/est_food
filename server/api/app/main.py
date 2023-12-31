@@ -53,6 +53,30 @@ async def get_category(_: int, category_id: int, session: Session = Depends(get_
 
     return category
 
+@app.post('/{warehouse_id}/category')
+def set_category(_: int, category: models.Product, session: Session = Depends(get_session)):
+    '''
+    Save or update category
+    '''
+
+    # If category has an ID, look for it
+    db_category = None
+    if category.id is not None and category.id != 0:
+        statement = sqlmodel.select(models.Category).where(
+            models.Category.id==category.id
+        )
+        db_category = session.exec(statement).first()
+
+    # If category already exists, update
+    if db_category is not None:
+        for k, v in dict(category).items():
+            setattr(db_category, k, v)
+
+        category = db_category
+
+    session.add(category)
+    session.commit()
+
 
 @app.get('/{warehouse_id}/product/{ean_code}')
 async def get_product(warehouse_id: int, ean_code: str, session: Session = Depends(get_session)) -> models.Product:
