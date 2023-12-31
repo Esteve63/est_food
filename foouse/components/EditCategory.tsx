@@ -77,7 +77,7 @@ const EditCategory = () => {
   const submit = async () => {
     category.name = formValues.name;
     category.min_stock = Number(formValues.min_stock);
-    await save();
+        await save();
 
     if (router.canGoBack()) {
       router.back();
@@ -88,7 +88,7 @@ const EditCategory = () => {
 
   const save = async () => {
     try {
-      await fetch(`${process.env.EXPO_PUBLIC_API_URL}/product`, {
+      await fetch(`${process.env.EXPO_PUBLIC_API_URL}/1/category`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
