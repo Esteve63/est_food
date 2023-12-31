@@ -54,7 +54,7 @@ async def get_category(warehouse_id: int, category_id: int, session: Session = D
     return category
 
 @app.post('/{warehouse_id}/category')
-def set_category(warehouse_id: int, category: models.Product, session: Session = Depends(get_session)):
+def set_category(warehouse_id: int, category: models.Category, session: Session = Depends(get_session)):
     '''
     Save or update category
     '''
