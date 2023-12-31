@@ -7,6 +7,7 @@ import { TextInput } from 'react-native-paper';
 import { router } from 'expo-router';
 import { Category } from '../models/Category';
 import * as Yup from 'yup';
+import Product from '../models/Product';
 
 const CategorySchema = Yup.object().shape({
   name: Yup.string().required('Required'),
@@ -24,22 +25,46 @@ const EditCategory = () => {
     name: Array.isArray(slug) ? slug[0] : slug,
     min_stock: 0
   });
+  const [products, setProducts] = useState<Product[]>([]);
+
   // Use local state for form fields
   const [formValues, setFormValues] = useState({ name: '', min_stock: '' });
 
+  const fetchCategory = async () => {
+    const category_response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/1/category/${slug}`);
+    const category_data = await category_response.json();
+
+    return category_data;
+  }
+
+  const fetchProducts = async () => {
+    const products_response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/1/${slug}/products`);
+    const products_data = await products_response.json();
+
+    return products_data;
+  }
+
   useEffect(() => {
-    const fetchProduct = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/1/category/${slug}`);
-        const data = await response.json();
-        setCategory(data);
-        setFormValues({ name: data.name, min_stock: data.min_stock.toString() });
+        
+        const category_fetch = fetchCategory();
+        const products_fetch = fetchProducts();        
+        
+        const category_data = await category_fetch;
+        const products_data = await products_fetch;
+
+        setCategory(category_data);
+        setProducts(products_data);
+      
+        setFormValues({ name: category_data.name, min_stock: category_data.min_stock.toString() });
+      
       } catch (error) {
         console.error('Error fetching product:', error);
       }
     };
 
-    fetchProduct();
+    fetchData();
   }, []);
 
   const handleChange = (fieldName: string, value: string) => {
