@@ -38,7 +38,7 @@ async def get_categories(warehouse_id: int, session: Session = Depends(get_sessi
     return [models.CategoryStock(id=category[0], name=category[1], stock=category[2]) for category in categories]
 
 @app.get('/{warehouse_id}/category/{category_id}')
-async def get_category(_: int, category_id: int, session: Session = Depends(get_session)) -> None:
+async def get_category(warehouse_id: int, category_id: int, session: Session = Depends(get_session)) -> models.Category:
     '''
     Get category by ID
     '''
@@ -54,7 +54,7 @@ async def get_category(_: int, category_id: int, session: Session = Depends(get_
     return category
 
 @app.post('/{warehouse_id}/category')
-def set_category(_: int, category: models.Product, session: Session = Depends(get_session)):
+def set_category(warehouse_id: int, category: models.Product, session: Session = Depends(get_session)):
     '''
     Save or update category
     '''
@@ -78,7 +78,7 @@ def set_category(_: int, category: models.Product, session: Session = Depends(ge
     session.commit()
 
 @app.get('/{warehouse_id}/{category_id}/products')
-async def get_products(_: int, category_id: int, session: Session = Depends(get_session)) -> tp.List[models.Product]:
+async def get_products(warehouse_id: int, category_id: int, session: Session = Depends(get_session)) -> tp.List[models.Product]:
     '''
     Get all products of a category
     '''
@@ -117,7 +117,7 @@ async def get_product(warehouse_id: int, ean_code: str, session: Session = Depen
     return product
 
 @app.post('/{warehouse_id}/product')
-def set_product(_: int, product: models.Product, session: Session = Depends(get_session)):
+def set_product(warehouse_id: int, product: models.Product, session: Session = Depends(get_session)):
     '''
     Save or update product
     '''

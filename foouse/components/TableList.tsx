@@ -15,7 +15,6 @@ const TableList: React.FC = () => {
         try {
           const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/1/categories`);
           const data = await response.json();
-          console.log(data)
           setCategories(data);
         } catch (error) {
           console.error('Error fetching categories:', error);

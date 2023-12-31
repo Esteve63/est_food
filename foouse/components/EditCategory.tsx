@@ -5,6 +5,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { Formik } from 'formik';
 import { TextInput } from 'react-native-paper';
 import { router } from 'expo-router';
+import { Category } from '../models/Category';
 import * as Yup from 'yup';
 
 const CategorySchema = Yup.object().shape({
@@ -17,7 +18,9 @@ const EditCategory = () => {
   const { slug } = useLocalSearchParams();
   
   // Initialize the state with a default product
-  const [category, setCategory] = useState<{name: string, min_stock: number}>({
+  const [category, setCategory] = useState<Category>({
+    id: 0,
+    warehouse_id: 0,
     name: Array.isArray(slug) ? slug[0] : slug,
     min_stock: 0
   });
@@ -27,9 +30,9 @@ const EditCategory = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/1/categories/${slug}`);
+        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/1/category/${slug}`);
         const data = await response.json();
-        setCategory({ name: data.name, min_stock: data.min_stock });
+        setCategory(data);
         setFormValues({ name: data.name, min_stock: data.min_stock.toString() });
       } catch (error) {
         console.error('Error fetching product:', error);
