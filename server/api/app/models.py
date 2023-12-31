@@ -22,3 +22,10 @@ class Product(SQLModel, table=True):
     units: str = ''
     stock: int = 0
 
+'''
+Helper models
+'''
+class CategoryStock(SQLModel):
+    id: tp.Optional[int] = Field(default_factory=None, primary_key=True)
+    name: str = Field()
+    stock: int = Field(default=0)

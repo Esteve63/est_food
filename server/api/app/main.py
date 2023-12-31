@@ -19,7 +19,7 @@ async def pong():
 
 
 @app.get('/{warehouse_id}/categories')
-async def get_categories(warehouse_id: int, session: Session = Depends(get_session)) -> tp.List[models.Category]:
+async def get_categories(warehouse_id: int, session: Session = Depends(get_session)) -> tp.List[models.CategoryStock]:
     '''
     Get all categories
     '''
@@ -35,7 +35,7 @@ async def get_categories(warehouse_id: int, session: Session = Depends(get_sessi
 
     categories = session.exec(statement).all()
 
-    return [models.Category(id=category[0], warehouse_id=warehouse_id, name=category[1], stock=category[2]) for category in categories]
+    return [models.CategoryStock(id=category[0], name=category[1], stock=category[2]) for category in categories]
 
 @app.get('/{warehouse_id}/category/{category_id}')
 async def get_category(_: int, category_id: int, session: Session = Depends(get_session)) -> None:
