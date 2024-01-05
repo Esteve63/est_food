@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Button, StyleSheet } from 'react-native';
+import { Button, Dimensions, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { Text, View } from '../components/Themed';
-import { useLocalSearchParams } from 'expo-router';
+import { Link, useLocalSearchParams } from 'expo-router';
 import { Formik } from 'formik';
 import { TextInput } from 'react-native-paper';
 import { router } from 'expo-router';
@@ -14,6 +14,7 @@ const CategorySchema = Yup.object().shape({
   min_stock: Yup.number().required('Required')
 });
 
+const fullWidth = Dimensions.get('window').width;
 
 const EditCategory = () => {
   const { slug } = useLocalSearchParams();
@@ -43,6 +44,15 @@ const EditCategory = () => {
 
     return products_data;
   }
+
+  const renderProduct = (item: Product) => (
+    <Link href={`/product/${item.id}`} asChild key={item.id} >
+      <Pressable style={styles.row}>
+        <Text style={styles.cell}>{item.ean_code}</Text>
+        <Text style={styles.cell}>{item.stock}</Text>
+      </Pressable>
+    </Link>
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -135,6 +145,10 @@ const EditCategory = () => {
           </>
         )}
       </Formik>
+
+      <ScrollView>
+        {products.map((item) => renderProduct(item))}
+      </ScrollView>
     </View>
   );
 }
@@ -157,7 +171,18 @@ const styles = StyleSheet.create({
   form: {
     width: '80%',
     margin: 10
-  }
+  },
+  row: {
+    flexDirection: 'row',
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    width: fullWidth,
+  },
+  cell: {
+    flex: 1,
+    textAlign: 'center',
+  },
 });
 
 export default EditCategory;
