@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Dimensions, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { Dimensions, Pressable, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text, View } from '../components/Themed';
 import { Link, useLocalSearchParams } from 'expo-router';
 import { Formik } from 'formik';
@@ -14,7 +14,7 @@ const CategorySchema = Yup.object().shape({
   min_stock: Yup.number().required('Required')
 });
 
-const fullWidth = Dimensions.get('window').width;
+const fullWidth = Dimensions.get('window').width * 0.8;
 
 const EditCategory = () => {
   const { slug } = useLocalSearchParams();
@@ -46,7 +46,7 @@ const EditCategory = () => {
   }
 
   const renderProduct = (item: Product) => (
-    <Link href={`/product/${item.id}`} asChild key={item.id} >
+    <Link href={`/product/${item.ean_code}`} asChild key={item.id} >
       <Pressable style={styles.row}>
         <Text style={styles.cell}>{item.ean_code}</Text>
         <Text style={styles.cell}>{item.stock}</Text>
@@ -141,14 +141,19 @@ const EditCategory = () => {
             {touched.min_stock && errors.min_stock && (
               <Text style={{ color: 'red' }}>{errors.min_stock}</Text>
             )}
-         <Button onPress={() => handleSubmit()} title="OK"/>
+            <View style={styles.header}>
+              <Text style={styles.headerCell}>EAN code</Text>
+              <Text style={styles.headerCell}>Stock</Text>
+            </View>
+            <ScrollView>
+              {products.map((item) => renderProduct(item))}
+            </ScrollView>
+            <TouchableOpacity style={styles.button} onPress={() => handleSubmit()}>
+              <Text style={styles.buttonText}>OK</Text>
+            </TouchableOpacity>
           </>
         )}
       </Formik>
-
-      <ScrollView>
-        {products.map((item) => renderProduct(item))}
-      </ScrollView>
     </View>
   );
 }
@@ -182,6 +187,29 @@ const styles = StyleSheet.create({
   cell: {
     flex: 1,
     textAlign: 'center',
+  },
+  header: {
+    flexDirection: 'row',
+    backgroundColor: '#ddd',
+    padding: 10,
+    width: '80%', // Set the width to the full width of the device
+    marginTop: 10
+  },
+  headerCell: {
+    flex: 1,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  button: {
+    backgroundColor: '#841584',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    width: '80%',
+    margin: 20
+  },
+  buttonText: {
+    color: 'white',
   },
 });
 
