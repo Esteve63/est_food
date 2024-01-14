@@ -70,7 +70,7 @@ const EditCategory = () => {
         setFormValues({ name: category_data.name, min_stock: category_data.min_stock.toString() });
       
       } catch (error) {
-        console.error('Error fetching product:', error);
+        console.error('Error fetching category:', error);
       }
     };
 

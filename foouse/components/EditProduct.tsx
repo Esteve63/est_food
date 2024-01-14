@@ -3,42 +3,88 @@ import { Button, StyleSheet } from 'react-native';
 import { Text, View } from '../components/Themed';
 import { useLocalSearchParams } from 'expo-router';
 import { Formik } from 'formik';
-import { TextInput } from 'react-native-paper';
+import { List, TextInput } from 'react-native-paper';
 import Product from '../models/Product';
 import { router } from 'expo-router';
 import * as Yup from 'yup';
+import Fuse from 'fuse.js';
+import { CategoryStock } from '../models/Category';
 
 const ProductSchema = Yup.object().shape({
-  name: Yup.string().required('Required'),
+  category_name: Yup.string().required('Required'),
+  // value: Yup.number(),
+  // units: Yup.string(),
   stock: Yup.number().required('Required')
 });
 
+const existingCategories = [
+  'Electronics',
+  'Books',
+  'Clothing',
+  'Home Appliances'
+];
+
+const fuzzyOptions = {
+  includeScore: true,
+  // Add other options here if needed
+  keys: ['name']
+};
+
+const fuse = new Fuse(existingCategories.map(name => ({ name })), fuzzyOptions);
 
 const EditProduct = () => {
   const { slug } = useLocalSearchParams();
   
   // Initialize the state with a default product
   const [product, setProduct] = useState<Product>({
-    id: Array.isArray(slug) ? slug[0] : slug,
-    name: 'Unknown',
-    stock: 0
+    id: 0,
+    ean_code: Array.isArray(slug) ? slug[0] : slug,
+    category_id: 0,
+    value: 0,
+    units: '',
+    stock: 0,
   });
+  const [categories, setCategories] = useState<CategoryStock[]>([]);
+
   // Use local state for form fields
-  const [formValues, setFormValues] = useState({ name: '', stock: '' });
+  const [formValues, setFormValues] = useState({category_name: '', stock: ''});
+
+  const fetchProduct = async () => {
+    const product_response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/1/product/${slug}`);
+    const product_data = await product_response.json();
+
+    return product_data;
+  }
+
+  const fetchCategories = async () => {
+    const categories_response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/1/categories`);
+    const categories_data = await categories_response.json();
+
+    return categories_data;
+  }
 
   useEffect(() => {
-    const fetchProduct = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/products/${slug}`);
-        const data = await response.json();
-        setProduct(data);
-        setFormValues({ name: data.name, stock: data.stock.toString() });
+        const product_fetch = fetchProduct();
+        const categories_fetch = fetchCategories();
+
+        const product_data = await product_fetch;
+        const categories_data = await categories_fetch;
+        
+        setProduct(product_data);
+        setCategories(categories_data);
+
+        setFormValues({
+          category_name: product_data.category_id.toString(),
+          stock: product_data.stock.toString()
+        });
       } catch (error) {
         console.error('Error fetching product:', error);
       }
     };
 
-    fetchProduct();
+    fetchData();
   }, []);
 
   const handleChange = (fieldName: string, value: string) => {
@@ -49,9 +95,9 @@ const EditProduct = () => {
   };
 
   const submit = async () => {
-    product.name = formValues.name;
-    product.stock = Number(formValues.stock);
-    await save();
+    // product.name = formValues.name;
+    // product.stock = Number(formValues.stock);
+    // await save();
 
     if (router.canGoBack()) {
       router.back();
@@ -62,7 +108,7 @@ const EditProduct = () => {
 
   const save = async () => {
     try {
-      await fetch(`${process.env.EXPO_PUBLIC_API_URL}/product`, {
+      await fetch(`${process.env.EXPO_PUBLIC_API_URL}/1/product`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -74,25 +120,45 @@ const EditProduct = () => {
     }
   };
 
+  const [suggestions, setSuggestions] = useState([]);
+
+  const handleCategoryChange = (value: string) => {
+    handleChange('category_name', value);
+    const results = fuse.search(value);
+    console.log(suggestions);
+    setSuggestions(results.map(result => result.item.name));
+  };
+
   return (
     <View style={styles.container}>
-      <Text>EAN-13: {product.id}</Text>
+      <Text>EAN-13: {product.ean_code}</Text>
       <Formik
-        initialValues={{name: product.name, stock: product.stock}}
+        initialValues={{category_name: '', value: product.value, units: product.units, stock: product.stock}}
         validationSchema={ProductSchema}
         onSubmit={submit}
       >
         {({ handleSubmit, values, errors, touched }) => (
           <>
             <TextInput
-              label="Name"
-              value={formValues.name}
-              onChangeText={(value) => handleChange('name', value)}
-              error={touched.name && !!errors.name}
+              label="Category"
+              value={formValues.category_name}
+              onChangeText={handleCategoryChange}
+              error={touched.category_name && !!errors.category_name}
               style={styles.form}
             />
-            {touched.name && errors.name && (
-              <Text style={{ color: 'red' }}>{errors.name}</Text>
+            <View style={styles.suggestionsContainer}>
+              {suggestions.map((suggestion, index) => (
+                <List.Item
+                  key={index}
+                  // title={suggestion}
+                  title={<Text style={styles.suggestionText}>{suggestion}</Text>}
+                  onPress={() => handleCategoryChange(suggestion)}
+                  style={styles.suggestionItem}
+                />
+              ))}
+            </View>
+            {touched.category_name && errors.category_name && (
+              <Text style={{ color: 'red' }}>{errors.category_name}</Text>
             )}
 
             <TextInput
@@ -106,7 +172,7 @@ const EditProduct = () => {
             {touched.stock && errors.stock && (
               <Text style={{ color: 'red' }}>{errors.stock}</Text>
             )}
-         <Button onPress={() => handleSubmit()} title="OK"/>
+            <Button onPress={() => handleSubmit()} title="OK"/>
           </>
         )}
       </Formik>
@@ -133,7 +199,24 @@ const styles = StyleSheet.create({
   form: {
     width: '80%',
     margin: 10
-  }
+  },
+  suggestionsContainer: {
+    position: 'absolute',
+    top: 100,
+    width: '80%',
+    backgroundColor: 'white',
+    zIndex: 1, // Make sure it overlays other content
+  },
+  suggestionItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+    color: 'black'
+  },
+  suggestionText: {
+    color: 'black', // Or any other color you prefer
+    // Add other text styling here if necessary
+  }  
 });
 
 export default EditProduct;
