@@ -19,7 +19,9 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         alignItems: 'center',
         width: '80%',
-        margin: 20
+        margin: 20,
+        bottom: 0,
+        position: 'absolute'
     },
     buttonText: {
         color: 'white',

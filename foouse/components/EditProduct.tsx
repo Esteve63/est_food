@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Text, View } from '../components/Themed';
 import { useLocalSearchParams } from 'expo-router';
 import { Formik } from 'formik';
@@ -10,6 +10,7 @@ import * as Yup from 'yup';
 import Fuse from 'fuse.js';
 import { CategoryStock, FuseSearchCategory } from '../models/Category';
 import SubmitButton from './SubmitButton';
+import StockAdjuster from './StockAdjuster';
 
 const ProductSchema = Yup.object().shape({
   category_name: Yup.string().required('Required'),
@@ -172,17 +173,10 @@ const EditProduct = () => {
               <Text style={{ color: 'red' }}>{errors.category_name}</Text>
             )}
 
-            <TextInput
-              label="Stock"
-              value={formValues.stock}
-              onChangeText={(value) => handleChange('stock', value)}
-              error={touched.stock && !!errors.stock}
-              keyboardType="numeric"
-              style={styles.form}
+            <StockAdjuster 
+              initialStock={product.stock}
+              onStockChange={(newStock) => handleChange('stock', newStock.toString())}
             />
-            {touched.stock && errors.stock && (
-              <Text style={{ color: 'red' }}>{errors.stock}</Text>
-            )}
             <SubmitButton onPress={() => {handleSubmit()}} />
           </>
         )}
