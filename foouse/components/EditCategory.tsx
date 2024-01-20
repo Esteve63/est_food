@@ -8,6 +8,7 @@ import { router } from 'expo-router';
 import { Category } from '../models/Category';
 import * as Yup from 'yup';
 import Product from '../models/Product';
+import SubmitButton from './SubmitButton';
 
 const CategorySchema = Yup.object().shape({
   name: Yup.string().required('Required'),
@@ -148,9 +149,7 @@ const EditCategory = () => {
             <ScrollView>
               {products.map((item) => renderProduct(item))}
             </ScrollView>
-            <TouchableOpacity style={styles.button} onPress={() => handleSubmit()}>
-              <Text style={styles.buttonText}>OK</Text>
-            </TouchableOpacity>
+            <SubmitButton onPress={() => {handleSubmit()}} />
           </>
         )}
       </Formik>
@@ -199,18 +198,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontWeight: 'bold',
     textAlign: 'center',
-  },
-  button: {
-    backgroundColor: '#841584',
-    padding: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-    width: '80%',
-    margin: 20
-  },
-  buttonText: {
-    color: 'white',
-  },
+  }
 });
 
 export default EditCategory;

@@ -9,6 +9,7 @@ import { router } from 'expo-router';
 import * as Yup from 'yup';
 import Fuse from 'fuse.js';
 import { CategoryStock, FuseSearchCategory } from '../models/Category';
+import SubmitButton from './SubmitButton';
 
 const ProductSchema = Yup.object().shape({
   category_name: Yup.string().required('Required'),
@@ -135,7 +136,6 @@ const EditProduct = () => {
     }
 
     setSuggestionsVisible(visibleSuggestions);
-
   };
 
   return (
@@ -183,7 +183,7 @@ const EditProduct = () => {
             {touched.stock && errors.stock && (
               <Text style={{ color: 'red' }}>{errors.stock}</Text>
             )}
-            <Button onPress={() => handleSubmit()} title="OK"/>
+            <SubmitButton onPress={() => {handleSubmit()}} />
           </>
         )}
       </Formik>
