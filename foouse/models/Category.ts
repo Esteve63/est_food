@@ -11,15 +11,4 @@ interface Category {
     min_stock: number
 }
 
-interface FuseSearchMatch {
-    key: string;
-    indices: [number, number][];
-  }
-
-interface FuseSearchCategory {
-    item: CategoryStock,
-    refIndex: number,
-    score: number
-}
-
-export { CategoryStock, Category, FuseSearchCategory }
+export { CategoryStock, Category }

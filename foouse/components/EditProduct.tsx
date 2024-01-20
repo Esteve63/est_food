@@ -7,8 +7,8 @@ import { List, TextInput } from 'react-native-paper';
 import Product from '../models/Product';
 import { router } from 'expo-router';
 import * as Yup from 'yup';
-import Fuse from 'fuse.js';
-import { CategoryStock, FuseSearchCategory } from '../models/Category';
+import Fuse, { FuseResult } from 'fuse.js';
+import { CategoryStock } from '../models/Category';
 import SubmitButton from './SubmitButton';
 import StockAdjuster from './StockAdjuster';
 
@@ -17,7 +17,7 @@ const ProductSchema = Yup.object().shape({
   stock: Yup.number().required('Required')
 });
 
-let fuse = new Fuse([]);
+let fuse = new Fuse<CategoryStock>([]);
 
 const EditProduct = () => {
   const { slug } = useLocalSearchParams();
@@ -57,13 +57,14 @@ const EditProduct = () => {
         const categories_fetch = fetchCategories();
 
         const product_data = await product_fetch;
-        const categories_data = await categories_fetch;
+        const categories_data: CategoryStock[] = await categories_fetch;
         
         setProduct(product_data);
         setCategories(categories_data);
 
+        const category_name = categories_data.find(category => category.id === product_data.category_id)?.name ?? '';
         setFormValues({
-          category_name: product_data.category_id.toString(),
+          category_name: category_name,
           stock: product_data.stock.toString()
         });
 
@@ -71,7 +72,8 @@ const EditProduct = () => {
           includeScore: true,
           keys: ['name']
         };
-        fuse = new Fuse(categories_data, fuzzyOptions);
+
+        fuse = new Fuse<CategoryStock>(categories_data, fuzzyOptions);
 
       } catch (error) {
         console.error('Error fetching product:', error);
@@ -114,25 +116,17 @@ const EditProduct = () => {
     }
   };
 
-  const [suggestions, setSuggestions] = useState<FuseSearchCategory[]>([]);
+  const [suggestions, setSuggestions] = useState<FuseResult<CategoryStock>[]>([]);
   const [suggestionsVisible, setSuggestionsVisible] = useState<boolean>(false);
 
   const handleCategoryChange = (value: string) => {
     handleChange('category_name', value);
     const results = fuse.search(value);
 
-    const mappedResults: FuseSearchCategory[] = results.map(result => {
-      return {
-        item: result.item,
-        refIndex: result.refIndex,
-        score: result.score ?? 0
-      };
-    });
-
-    setSuggestions(mappedResults);
+    setSuggestions(results);
 
     let visibleSuggestions = false;
-    if (mappedResults.length && mappedResults[0].item.name !== value) {
+    if (results.length && results[0].item.name !== value) {
       visibleSuggestions = true;
     }
 
