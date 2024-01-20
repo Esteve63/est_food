@@ -8,29 +8,14 @@ import Product from '../models/Product';
 import { router } from 'expo-router';
 import * as Yup from 'yup';
 import Fuse from 'fuse.js';
-import { CategoryStock } from '../models/Category';
+import { CategoryStock, FuseSearchCategory } from '../models/Category';
 
 const ProductSchema = Yup.object().shape({
   category_name: Yup.string().required('Required'),
-  // value: Yup.number(),
-  // units: Yup.string(),
   stock: Yup.number().required('Required')
 });
 
-const existingCategories = [
-  'Electronics',
-  'Books',
-  'Clothing',
-  'Home Appliances'
-];
-
-const fuzzyOptions = {
-  includeScore: true,
-  // Add other options here if needed
-  keys: ['name']
-};
-
-const fuse = new Fuse(existingCategories.map(name => ({ name })), fuzzyOptions);
+let fuse = new Fuse([]);
 
 const EditProduct = () => {
   const { slug } = useLocalSearchParams();
@@ -79,6 +64,13 @@ const EditProduct = () => {
           category_name: product_data.category_id.toString(),
           stock: product_data.stock.toString()
         });
+
+        const fuzzyOptions = {
+          includeScore: true,
+          keys: ['name']
+        };
+        fuse = new Fuse(categories_data, fuzzyOptions);
+
       } catch (error) {
         console.error('Error fetching product:', error);
       }
@@ -120,13 +112,30 @@ const EditProduct = () => {
     }
   };
 
-  const [suggestions, setSuggestions] = useState([]);
+  const [suggestions, setSuggestions] = useState<FuseSearchCategory[]>([]);
+  const [suggestionsVisible, setSuggestionsVisible] = useState<boolean>(false);
 
   const handleCategoryChange = (value: string) => {
     handleChange('category_name', value);
     const results = fuse.search(value);
-    console.log(suggestions);
-    setSuggestions(results.map(result => result.item.name));
+
+    const mappedResults: FuseSearchCategory[] = results.map(result => {
+      return {
+        item: result.item,
+        refIndex: result.refIndex,
+        score: result.score ?? 0
+      };
+    });
+
+    setSuggestions(mappedResults);
+
+    let visibleSuggestions = false;
+    if (mappedResults.length && mappedResults[0].item.name !== value) {
+      visibleSuggestions = true;
+    }
+
+    setSuggestionsVisible(visibleSuggestions);
+
   };
 
   return (
@@ -146,17 +155,19 @@ const EditProduct = () => {
               error={touched.category_name && !!errors.category_name}
               style={styles.form}
             />
-            <View style={styles.suggestionsContainer}>
+            {
+            suggestionsVisible && <View style={styles.suggestionsContainer}>
               {suggestions.map((suggestion, index) => (
                 <List.Item
                   key={index}
                   // title={suggestion}
-                  title={<Text style={styles.suggestionText}>{suggestion}</Text>}
-                  onPress={() => handleCategoryChange(suggestion)}
+                  title={<Text style={styles.suggestionText}>{suggestion.item.name}</Text>}
+                  onPress={() => handleCategoryChange(suggestion.item.name)}
                   style={styles.suggestionItem}
                 />
               ))}
             </View>
+            }
             {touched.category_name && errors.category_name && (
               <Text style={{ color: 'red' }}>{errors.category_name}</Text>
             )}
