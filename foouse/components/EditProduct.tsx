@@ -95,11 +95,13 @@ const EditProduct = () => {
     // product.stock = Number(formValues.stock);
     // await save();
 
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace('/(tabs)');
-    }
+    console.log(formValues);
+
+    // if (router.canGoBack()) {
+    //   router.back();
+    // } else {
+    //   router.replace('/(tabs)');
+    // }
   }
 
   const save = async () => {
@@ -119,14 +121,18 @@ const EditProduct = () => {
   const [suggestions, setSuggestions] = useState<FuseResult<CategoryStock>[]>([]);
   const [suggestionsVisible, setSuggestionsVisible] = useState<boolean>(false);
 
-  const handleCategoryChange = (value: string) => {
+  const handleCategoryChange = (value: string, new_category: boolean = false) => {
     handleChange('category_name', value);
     const results = fuse.search(value);
 
     setSuggestions(results);
 
     let visibleSuggestions = false;
-    if (results.length && results[0].item.name !== value) {
+    if (new_category) {
+      // Hide suggestions
+    } else if (results.length && results[0].item.name !== value) {
+      visibleSuggestions = true;
+    } else if (!results.length && value !== "") {
       visibleSuggestions = true;
     }
 
@@ -137,11 +143,12 @@ const EditProduct = () => {
     <View style={styles.container}>
       <Text>EAN-13: {product.ean_code}</Text>
       <Formik
-        initialValues={{category_name: '', value: product.value, units: product.units, stock: product.stock}}
+        // initialValues={{category_name: '', value: product.value, units: product.units, stock: product.stock}}
+        initialValues={{category_name: categories.find(category => category.id === product.category_id)?.name ?? '', stock: product.stock}}
         validationSchema={ProductSchema}
         onSubmit={submit}
       >
-        {({ handleSubmit, values, errors, touched }) => (
+        {({ handleSubmit, setFieldValue, values, errors, touched }) => (
           <>
             <TextInput
               label="Category"
@@ -155,12 +162,18 @@ const EditProduct = () => {
               {suggestions.map((suggestion, index) => (
                 <List.Item
                   key={index}
-                  // title={suggestion}
                   title={<Text style={styles.suggestionText}>{suggestion.item.name}</Text>}
                   onPress={() => handleCategoryChange(suggestion.item.name)}
                   style={styles.suggestionItem}
                 />
               ))}
+              {
+                <List.Item
+                  title={<Text style={styles.suggestionText}>{`Add "${formValues.category_name}"`}</Text>}
+                  onPress={() => handleCategoryChange(formValues.category_name, true)}
+                  style={[styles.suggestionItem, styles.newCategoryItem]}
+                />
+              }
             </View>
             }
             {touched.category_name && errors.category_name && (
@@ -201,7 +214,7 @@ const styles = StyleSheet.create({
   },
   suggestionsContainer: {
     position: 'absolute',
-    top: 100,
+    top: 90,
     width: '80%',
     backgroundColor: 'white',
     zIndex: 1, // Make sure it overlays other content
@@ -214,8 +227,10 @@ const styles = StyleSheet.create({
   },
   suggestionText: {
     color: 'black', // Or any other color you prefer
-    // Add other text styling here if necessary
-  }  
+  },
+  newCategoryItem: {
+    backgroundColor: '#f0f0f0'
+  }
 });
 
 export default EditProduct;
