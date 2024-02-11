@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { View, Text } from './Themed';
 import { useEffect, useState } from 'react';
 import Product from '../models/Product';
@@ -7,6 +7,7 @@ import { CategoryStock } from '../models/Category';
 import { Formik } from 'formik';
 import { ActivityIndicator, TextInput } from 'react-native-paper';
 import SubmitButton from './SubmitButton';
+import Fuse from 'fuse.js';
 
 const EditProduct = () => {
   const { slug } = useLocalSearchParams();
@@ -21,112 +22,133 @@ const EditProduct = () => {
   });
   const [categories, setCategories] = useState<CategoryStock[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchText, setSearchText] = useState('');
+  const [searchResults, setSearchResults] = useState(categories);
+
+  const [fuse, setFuse] = useState<Fuse<CategoryStock> | null>(null);
 
   const fetchProduct = async () => {
     const product_response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/1/product/${slug}`);
     const product_data = await product_response.json();
-
     return product_data;
   }
 
   const fetchCategories = async () => {
     const categories_response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/1/categories`);
     const categories_data = await categories_response.json();
-
     return categories_data;
   }
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const product_fetch = fetchProduct();
-        const categories_fetch = fetchCategories();
-
-        const product_data = await product_fetch;
-        const categories_data = await categories_fetch;
+        const product_data = await fetchProduct();
+        const categories_data : CategoryStock[] = await fetchCategories();
 
         setProduct(product_data);
         setCategories(categories_data);
 
+        const options = {
+          includeScore: true,
+          keys: ['name']
+        };
+        const fuseInstance = new Fuse(categories_data, options);
+        setFuse(fuseInstance);
       } catch (error) {
         console.error('Error fetching product:', error);
       } finally {
         setLoading(false);
       }
-    }
-
+    };
     fetchData();
-  }, [])
+  }, []);
+
+  useEffect(() => {
+    if (searchText.trim()) {
+      const results = fuse?.search(searchText).map(result => result.item) ?? [];
+      setSearchResults(results);
+    } else {
+      setSearchResults(categories);
+    }
+  }, [searchText, fuse, categories]);
 
   if (loading) {
     return (
       <View style={{...styles.container, justifyContent: 'center'}}>
         <ActivityIndicator />
       </View>
-    )  
+    );
   }
-  
+
   return (
     <View style={styles.container}>
       <Text>EAN-13: {product.ean_code}</Text>
       <Formik
-        initialValues={{category_name: categories.find(category => category.id === product.category_id)?.name ?? '', stock: product.stock}}
+        initialValues={{
+          category_name: categories.find(category => category.id === product.category_id)?.name ?? '',
+          stock: product.stock
+        }}
         onSubmit={values => console.log(values)}
       >
-        {({handleChange, handleSubmit, values}) => (
+        {({ handleChange, handleSubmit, values, setFieldValue }) => (
           <>
             <TextInput
-              onChangeText={handleChange('category_name')}
+              placeholder="Search category"
+              onChangeText={text => {
+                setSearchText(text);
+                handleChange('category_name')(text);
+              }}
               value={values.category_name}
               style={styles.form}
             />
-
-            <SubmitButton onPress={() => handleSubmit()}/>
+            <FlatList
+              data={searchResults}
+              keyExtractor={item => item.id.toString()}
+              style={styles.suggestionsContainer}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  onPress={() => {
+                    setFieldValue('category_name', item.name);
+                    setSearchText('');
+                  }}
+                  style={styles.suggestionItem}
+                >
+                  <Text style={styles.suggestionText}>{item.name}</Text>
+                </TouchableOpacity>
+              )}
+            />
+            <SubmitButton onPress={() => handleSubmit()} />
           </>
         )}
       </Formik>
     </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    padding: 5
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
+    padding: 5,
   },
   form: {
     width: '80%',
-    margin: 10
+    margin: 10,
   },
   suggestionsContainer: {
-    position: 'absolute',
-    top: 90,
+    maxHeight: 200,
     width: '80%',
     backgroundColor: 'white',
-    zIndex: 1, // Make sure it overlays other content
+    zIndex: 1,
   },
   suggestionItem: {
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
-    color: 'black'
   },
   suggestionText: {
-    color: 'black'
+    color: 'black',
   },
-  newCategoryItem: {
-    backgroundColor: '#f0f0f0'
-  }
 });
 
 export default EditProduct;
