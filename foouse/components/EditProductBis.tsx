@@ -8,6 +8,7 @@ import { Formik } from 'formik';
 import { ActivityIndicator, TextInput } from 'react-native-paper';
 import SubmitButton from './SubmitButton';
 import Fuse from 'fuse.js';
+import StockAdjuster from './StockAdjuster';
 
 const EditProduct = () => {
   const { slug } = useLocalSearchParams();
@@ -117,6 +118,7 @@ const EditProduct = () => {
                 </TouchableOpacity>
               )}
             />
+            <StockAdjuster initialStock={values.stock} onStockChange={(newStock) => handleChange('stock')(newStock.toString())}/>
             <SubmitButton onPress={() => handleSubmit()} />
           </>
         )}
