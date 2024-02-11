@@ -25,10 +25,11 @@ async def get_categories(warehouse_id: int, session: Session = Depends(get_sessi
     '''
 
     statement = sqlmodel.select(
-        models.Category.id, models.Category.name, sqlmodel.func.sum(models.Product.stock).label('stock')
+        models.Category.id, models.Category.name, sqlmodel.func.coalesce(sqlmodel.func.sum(models.Product.stock), 0).label('stock')
     ).join(
         models.Product,
-        models.Product.category_id == models.Category.id
+        models.Category.id == models.Product.category_id,
+        isouter=True
     ).where(
         models.Category.warehouse_id == warehouse_id
     ).group_by(models.Category.id)
@@ -54,7 +55,7 @@ async def get_category(warehouse_id: int, category_id: int, session: Session = D
     return category
 
 @app.post('/{warehouse_id}/category')
-def set_category(warehouse_id: int, category: models.Category, session: Session = Depends(get_session)):
+def set_category(warehouse_id: int, category: models.Category, session: Session = Depends(get_session)) -> models.Category:
     '''
     Save or update category
     '''
@@ -76,6 +77,8 @@ def set_category(warehouse_id: int, category: models.Category, session: Session 
 
     session.add(category)
     session.commit()
+
+    return category
 
 @app.get('/{warehouse_id}/{category_id}/products')
 async def get_products(warehouse_id: int, category_id: int, session: Session = Depends(get_session)) -> tp.List[models.Product]:
