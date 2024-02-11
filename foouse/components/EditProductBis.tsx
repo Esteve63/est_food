@@ -2,8 +2,8 @@ import { StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { View, Text } from './Themed';
 import { useEffect, useState } from 'react';
 import Product from '../models/Product';
-import { useLocalSearchParams } from 'expo-router';
-import { CategoryStock } from '../models/Category';
+import { router, useLocalSearchParams } from 'expo-router';
+import { Category, CategoryStock } from '../models/Category';
 import { Formik } from 'formik';
 import { ActivityIndicator, TextInput } from 'react-native-paper';
 import SubmitButton from './SubmitButton';
@@ -73,6 +73,70 @@ const EditProduct = () => {
     }
   }, [searchText, fuse, categories]);
 
+  const createCategory = async (category_name: string) => {
+    try {
+      let new_cat : Category = {name: category_name, warehouse_id: 1, min_stock: 0};
+      
+      console.log(new_cat)
+      const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/1/category`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(new_cat),
+      });
+
+      new_cat = await res.json();
+
+      return new_cat;
+    } catch (error) {
+      console.error('Error in POST request:', error);
+
+      return null;
+    }
+  }
+
+  const createProduct = async () => {
+    try {
+      await fetch(`${process.env.EXPO_PUBLIC_API_URL}/1/product`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(product),
+      });
+    } catch (error) {
+        console.error('Error in POST request:', error);
+    }
+  }
+
+  const onSubmit = async (category_name: string, stock: number) => {
+    
+    console.log(categories, category_name)
+    let cat_id = categories.find(cateogry => cateogry.name === category_name)?.id;
+    console.log(cat_id)
+    if (!cat_id) {
+      cat_id = (await createCategory(category_name))?.id;
+    }
+
+    if (!cat_id) {
+      console.error('Could not create category');
+      return;
+    }
+
+    product.stock = stock,
+    product.category_id = cat_id
+
+    await createProduct();
+
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/(tabs)');
+    }
+  }
+
+
   if (loading) {
     return (
       <View style={{...styles.container, justifyContent: 'center'}}>
@@ -89,7 +153,7 @@ const EditProduct = () => {
           category_name: categories.find(category => category.id === product.category_id)?.name ?? '',
           stock: product.stock
         }}
-        onSubmit={values => console.log(values)}
+        onSubmit={values => onSubmit(values.category_name, values.stock)}
       >
         {({ handleChange, handleSubmit, values, setFieldValue }) => (
           <>
